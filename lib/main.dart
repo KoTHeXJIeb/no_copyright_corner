@@ -1,6 +1,11 @@
 library config.globals;
 
+import 'package:audioplayers/audioplayers.dart';
+
 import 'package:flutter/material.dart';
+import 'screens.dart';
+
+AudioPlayer audioPlayer = AudioPlayer();
 
 void main() {
   runApp(const MyApp());
@@ -16,8 +21,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'No Copyright Corner',
       theme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.purple,
       ),
+      // lightTheme: ThemeData(
+      //   brightness: Brightness.light,
+      //   primarySwatch: Colors.purple,
+      // ),
       home: const MyHomePage(title: title),
     );
   }
@@ -81,6 +91,47 @@ class BeautifulCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class MusicCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String pathToMusicFile;
+
+  // ignore: use_key_in_widget_constructors
+  const MusicCard(
+      {Key? key,
+      required String title,
+      required String subtitle,
+      required String pathToMusicFile})
+      // ignore: prefer_initializing_formals
+      : title = title,
+        // ignore: prefer_initializing_formals
+        subtitle = subtitle,
+        // ignore: prefer_initializing_formals
+        pathToMusicFile = pathToMusicFile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(15), top: Radius.zero),
+        ),
+        elevation: 10,
+        child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.music_note, size: 50),
+            title: Text(title),
+            subtitle: Text(subtitle),
+          ),
+          TextButton(
+              onPressed: () {
+                audioPlayer.play(pathToMusicFile);
+              },
+              child: const Icon(Icons.play_arrow, size: 50)),
+        ]));
   }
 }
 
@@ -193,7 +244,7 @@ class SideDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.album),
             title: const Text('Free Music'),
-            onTap: () => {Navigator.of(context).pop()},
+            onTap: () => {_navigateToMusic(context)},
           ),
           ListTile(
             leading: const Icon(Icons.camera_alt),
@@ -216,23 +267,9 @@ void _navigateToFreeware(BuildContext context) {
       .push(MaterialPageRoute(builder: (context) => const FreewareScreen()));
 }
 
-class FreewareScreen extends StatelessWidget {
-  const FreewareScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text('Freeware')),
-        body: SingleChildScrollView(
-            child: Column(
-          children: const <Widget>[
-            BeautifulCard(
-                title: 'Free sound design app',
-                subtitle:
-                    'Free sound design app for Android which makes sound editing very simple and fast!')
-          ],
-        )));
-  }
+void _navigateToMusic(BuildContext context) {
+  Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => const MusicScreen()));
 }
 
 void _navigateToSettings(BuildContext context) {
@@ -240,43 +277,14 @@ void _navigateToSettings(BuildContext context) {
       .push(MaterialPageRoute(builder: (context) => const SettingsScreen()));
 }
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: SingleChildScrollView(
-          child: Column(
-        children: const <Widget>[],
-      )),
-    );
-  }
-}
-
 void _navigateToFreePics(BuildContext context) {
   Navigator.of(context)
       .push(MaterialPageRoute(builder: (context) => const FreePicsScreen()));
 }
 
-class FreePicsScreen extends StatelessWidget {
-  const FreePicsScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text('Free Pics')),
-        body: SingleChildScrollView(
-            child: Column(
-          children: const <Widget>[
-            BeautifulCard(
-                title: 'Free sound design app',
-                subtitle:
-                    'Free sound design app for Android which makes sound editing very simple and fast!')
-          ],
-        )));
-  }
+void _navigateToAddNewItem(BuildContext context) {
+  Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => const AddNewItem()));
 }
 
 class MyHomePage extends StatefulWidget {
@@ -296,8 +304,12 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedIndex = index;
     });
 
-    if (index == 2) {
-      _navigateToSettings(context);
+    if (index == 1) {
+      _navigateToFreeware(context);
+    } else if (index == 2) {
+      _navigateToMusic(context);
+    } else if (index == 3) {
+      _navigateToFreePics(context);
     }
   }
 
@@ -324,11 +336,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              _navigateToAddNewItem(context);
+            },
             tooltip: 'Add new item',
             child: const Icon(Icons.add)),
         bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: Colors.amber[800],
             elevation: 20,
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -342,6 +355,8 @@ class _MyHomePageState extends State<MyHomePage> {
               BottomNavigationBarItem(
                   icon: Icon(Icons.camera_alt), label: 'Free Pics'),
             ],
+            selectedItemColor: Colors.purple,
+            unselectedItemColor: Colors.grey,
             onTap: _onItemTapped));
   }
 
